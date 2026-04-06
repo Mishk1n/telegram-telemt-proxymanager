@@ -1,0 +1,38 @@
+# Добавить алиасы в ~/.bashrc
+cat >> ~/.bashrc << 'EOF'
+
+# ============================================
+# TeleMT Proxy Aliases
+# ============================================
+
+alias telemt-status='echo "=== TeleMT Proxy Status ===" && docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep telemt && echo "" && echo "=== DD Mode ===" && curl -s http://127.0.0.1:9092/v1/users | jq ".data[0] | {connections: .current_connections, ips: .active_unique_ips_list, traffic_mb: (.total_octets / 1024 / 1024)}" 2>/dev/null || echo "DD не запущен" && echo "" && echo "=== EE Mode ===" && curl -s http://127.0.0.1:9093/v1/users | jq ".data[0] | {connections: .current_connections, ips: .active_unique_ips_list, traffic_mb: (.total_octets / 1024 / 1024)}" 2>/dev/null || echo "EE не запущен"'
+
+alias telemt-logs-dd='docker logs telemt-dd -f'
+alias telemt-logs-ee='docker logs telemt-ee -f'
+alias telemt-logs-classic='docker logs telemt-classic -f'
+
+alias telemt-link-dd='curl -s http://127.0.0.1:9092/v1/users | jq -r ".data[0].links.secure[0]" 2>/dev/null || echo "DD не запущен"'
+alias telemt-link-ee='curl -s http://127.0.0.1:9093/v1/users | jq -r ".data[0].links.tls[0]" 2>/dev/null || echo "EE не запущен"'
+
+alias telemt-conns='echo "DD: $(curl -s http://127.0.0.1:9092/v1/users 2>/dev/null | jq -r ".data[0].current_connections" 2>/dev/null || echo 0) | EE: $(curl -s http://127.0.0.1:9093/v1/users 2>/dev/null | jq -r ".data[0].current_connections" 2>/dev/null || echo 0) | CLASSIC: $(curl -s http://127.0.0.1:9091/v1/users 2>/dev/null | jq -r ".data[0].current_connections" 2>/dev/null || echo 0)"'
+
+alias telemt-traffic='echo "=== Traffic (MB) ===" && echo "DD: $(curl -s http://127.0.0.1:9092/v1/users 2>/dev/null | jq -r ".data[0].total_octets / 1024 / 1024" 2>/dev/null || echo 0) MB" && echo "EE: $(curl -s http://127.0.0.1:9093/v1/users 2>/dev/null | jq -r ".data[0].total_octets / 1024 / 1024" 2>/dev/null || echo 0) MB"'
+EOF
+
+# Применить алиасы
+source ~/.bashrc
+
+# Показать статус всех прокси
+telemt-status
+
+# Показать логи DD в реальном времени
+telemt-logs-dd
+
+# Получить ссылку DD
+telemt-link-dd
+
+# Показать количество подключений
+telemt-conns
+
+# Показать трафик в МБ
+telemt-traffic
