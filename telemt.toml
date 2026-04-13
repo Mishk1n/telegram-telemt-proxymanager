@@ -1,0 +1,43 @@
+[general]
+use_middle_proxy = true
+
+[general.modes]
+classic = false
+secure = false
+tls = true
+
+[server]
+port = 6969
+max_connections = 500
+
+# Таймауты - ключевое для устранения ошибок
+read_timeout = 30
+write_timeout = 30
+handshake_timeout = 30  # Увеличиваем с дефолтного
+
+[server.api]
+enabled = true
+listen = "127.0.0.1:9093"
+
+[censorship]
+tls_domain = "ria.ru"
+unknown_sni_action = "mask"
+fallback_sni = "ria.ru"
+fallback_content = "/"
+strict_sni_check = false
+
+[access]
+mode = "secret"
+
+[access.users]
+default = "55ce1af25b35fbc5cb2d63aecedfaf9e"
+
+[limits]
+# Лимиты для предотвращения атак
+connection_rate = 100  # максимум соединений в секунду
+handshake_rate = 50     # максимум рукопожатий в секунду
+max_connections_per_ip = 10
+
+[logging]
+level = "warn"  # Меньше шума в логах, только предупреждения и ошибки
+# Для отладки временно можно поставить "info"
